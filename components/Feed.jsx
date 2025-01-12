@@ -26,12 +26,19 @@ const Feed = () => {
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
 
+  // Fetch posts and update the state
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/prompt');
+      const response = await fetch('/api/prompt', {
+        headers: {
+          "Cache-Control": "no-store", // Prevent caching to fetch fresh data each time
+        },
+      });
+
       if (!response.ok) {
         throw new Error("Failed to fetch prompts");
       }
+
       const data = await response.json();
       setPosts(data);
     } catch (error) {
@@ -40,11 +47,12 @@ const Feed = () => {
   };
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(); // Fetch posts on first render
   }, []);
 
+  // Filter prompts based on search text
   const filterPrompts = (searchText) => {
-    const regex = new RegExp(searchText, "i"); // 'i' flag for case-insensitive search
+    const regex = new RegExp(searchText, "i");
     return posts.filter(
       (item) =>
         regex.test(item.creator.username) ||
@@ -68,9 +76,13 @@ const Feed = () => {
 
   const handleTagClick = (tagName) => {
     setSearchText(tagName);
-
     const searchResult = filterPrompts(tagName);
     setSearchedResults(searchResult);
+  };
+
+  // Function to force a re-fetch of posts (to be used after creating or deleting posts)
+  const refreshFeed = () => {
+    fetchPosts(); // Re-fetch the posts from the server
   };
 
   return (
