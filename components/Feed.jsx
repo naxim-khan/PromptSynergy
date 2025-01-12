@@ -3,12 +3,12 @@ import { useState, useEffect } from "react"
 import PromptCard from "./PromptCard"
 
 const PromptCardList = ({ data, handleTagClick }) => {
-  if (data === null || data === undefined) {
-    console.log("No data")
-  } else {
-    console.log("Data fetched")
-    console.log(data)
-  }
+  // if (data === null || data === undefined) {
+  //   console.log("No data")
+  // } else {
+  //   console.log("Data fetched")
+  //   console.log(data)
+  // }
   return (
     <div className="mt-16 prompt_layout">
       {data.map((post) => {
