@@ -14,13 +14,20 @@ const MyProfile = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch(`/api/users/${session?.user.id}/posts`);
-      const data = await response.json();
-
-      setMyPosts(data);
+      try {
+        const response = await fetch(`/api/users/${session?.user.id}/posts`);
+        if (response.ok) {
+          const data = await response.json();
+          setMyPosts(data);
+        } else {
+          console.error("Failed to fetch posts.");
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
     };
 
-    if (session?.user.id) {fetchPosts()};
+    if (session?.user.id) fetchPosts();
   }, [session?.user.id]);
 
   const handleEdit = (post) => {
@@ -34,30 +41,27 @@ const MyProfile = () => {
 
     if (hasConfirmed) {
       try {
-        await fetch(`/api/prompt/${post._id.toString()}`, {
+        const response = await fetch(`/api/prompt/${post._id.toString()}`, {
           method: "DELETE",
         });
-        
+
         if (response.ok) {
+          // Remove the deleted post from the local state
           const filteredPosts = myPosts.filter((item) => item._id !== post._id);
           setMyPosts(filteredPosts);
-          // Refetch the posts to update the UI
-          fetchPosts(); // Fetch latest posts after deletion
         } else {
           console.error("Failed to delete the prompt.");
         }
-
       } catch (error) {
-        console.log(error);
+        console.error("Error deleting the prompt:", error);
       }
     }
-    router.push('/')
   };
 
   return (
     <Profile
-      name='My'
-      desc='Welcome to your personalized profile page. Share your exceptional prompts and inspire others with the power of your imagination'
+      name="My"
+      desc="Welcome to your personalized profile page. Share your exceptional prompts and inspire others with the power of your imagination."
       data={myPosts}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
