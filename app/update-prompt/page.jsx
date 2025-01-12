@@ -1,14 +1,16 @@
 "use client";
-// Using dynamic import to disable SSR for this component
-import { Suspense } from 'react';
+
+import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-// Dynamically import the Form component and disable SSR
+// Use a different name for the export to avoid conflict
+export const dynamicPage = "force-dynamic";
+
 const Form = dynamic(() => import("../../components/Form"), { ssr: false });
 
-const UpdatePrompt = () => {
+const UpdatePromptContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
@@ -16,7 +18,6 @@ const UpdatePrompt = () => {
   const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
-  // Fetch prompt details on client-side
   useEffect(() => {
     if (promptId) {
       const getPromptDetails = async () => {
@@ -59,16 +60,21 @@ const UpdatePrompt = () => {
   };
 
   return (
-    // Suspense should only wrap the dynamically imported component (Form)
-    <div>
-      <Form
-        type="Edit"
-        post={post}
-        setPost={setPost}
-        submitting={submitting}
-        handleSubmit={updatePrompt}
-      />
-    </div>
+    <Form
+      type="Edit"
+      post={post}
+      setPost={setPost}
+      submitting={submitting}
+      handleSubmit={updatePrompt}
+    />
+  );
+};
+
+const UpdatePrompt = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UpdatePromptContent />
+    </Suspense>
   );
 };
 
