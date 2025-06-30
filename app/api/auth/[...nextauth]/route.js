@@ -25,15 +25,23 @@ const handler = NextAuth({
         await connectToDB();
 
         // Check if user already exists
-        const userExists = await User.findOne({
-          email: profile.email,
-        });
+        let user = await User.findOne({ email: profile.email });
 
         // If not, create new user
-        if (!userExists) {
-          await User.create({
+        if (!user) {
+          let baseUsername = profile.name.replace(/\s+/g, "").toLowerCase();
+          let username = baseUsername;
+          let counter = 1;
+
+          // Keep modifying the username until it is unique
+          while (await User.findOne({ username })) {
+            username = `${baseUsername}${counter}`;
+            counter++;
+          }
+
+          user = await User.create({
             email: profile.email,
-            username: profile.name.replace(" ", "").toLowerCase(),
+            username,
             image: profile.picture,
           });
         }
@@ -43,7 +51,7 @@ const handler = NextAuth({
         console.log("Error during signIn:", err);
         return false;
       }
-    },
+    }
   },
 });
 
