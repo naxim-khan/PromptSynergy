@@ -1,6 +1,9 @@
 import Prompt from "@/models/prompt";
 import { connectToDB } from "@/utils/database";
 
+// 🔥 This tells Next.js: DO NOT STATICALLY CACHE THIS ROUTE
+export const dynamic = "force-dynamic";
+
 export const GET = async () => {
   try {
     // Ensure database connection
